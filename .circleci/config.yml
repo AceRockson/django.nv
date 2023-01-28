@@ -18,19 +18,16 @@ jobs:
           pip install -r requirements.txt
           python manage.py test taskManager
           
-  oast:
+  oast-frontend:
     machine: true
     steps:
       - checkout
 
-      - run: 
-          command: docker run -v $(pwd):/src --rm hysnsec/safety check -r /src/requirements.txt --json | tee oast-results.json
-          when: on_fail
+      - run: docker run --rm -v $(pwd):/src -w /src hysnsec/retire --outputformat json --outputpath retirejs-output.json --severity high
 
       - store_artifacts:
-          path: oast-results.json
-          destination: safety-artifact
-          when: always
+          path: retirejs-output.json
+          destination: retirejs-artifact
 
   integration:
     docker:
@@ -58,12 +55,12 @@ workflows:
       - test:
           requires:
             - build 
-      - oast:
+      - oast-frontend:
           requires:
             - test
       - integration:
           requires:
-            - test
+            - oast-frontend
       - prod:
           type: approval
           requires:

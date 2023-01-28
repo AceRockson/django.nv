@@ -41,10 +41,10 @@ jobs:
           pip install -r requirements.txt
           python manage.py test taskManager
 
-    oast-snyk:
-      runs-on: ubuntu-20.04
-      needs: test
-      steps:
+  oast-snyk:      
+    runs-on: ubuntu-20.04
+    needs: test
+    steps:
         - uses: actions/checkout@master      
         - uses: snyk/actions/setup@master
         - uses: actions/setup-go@v1

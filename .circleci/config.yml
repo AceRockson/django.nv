@@ -7,7 +7,6 @@ jobs:
       - run: |                              # similar to "script" in GitLab
           pip install -r requirements.txt
           python manage.py check
-          echo "kappa"
 
   test:
     docker:
@@ -17,19 +16,6 @@ jobs:
       - run: |
           pip install -r requirements.txt
           python manage.py test taskManager
-          
-  oast-frontend:
-    machine: true
-    steps:
-      - checkout
-
-      - run: npm install
-
-      - run: docker run --rm -v $(pwd):/src -w /src hysnsec/retire --outputformat json --outputpath retirejs-output.json --severity high
-
-      - store_artifacts:
-          path: retirejs-output.json
-          destination: retirejs-artifact
 
   integration:
     docker:
@@ -40,7 +26,6 @@ jobs:
           command: |
             echo "This is an integration step"
             exit 1
-          when: on_fail
 
   prod:
     docker:
@@ -57,12 +42,9 @@ workflows:
       - test:
           requires:
             - build 
-      - oast-frontend:
-          requires:
-            - test
       - integration:
           requires:
-            - oast-frontend
+            - test
       - prod:
           type: approval
           requires:
